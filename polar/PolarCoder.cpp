@@ -51,7 +51,7 @@ std::vector<int> PolarCode::decode(const std::vector<double> &p0, const std::vec
             recursivelyUpdateC(m, phi);
     }
     l = findMostProbablePath();
-    int *C_0 = getArrayPointer_C(0, l);
+    int *C_0 = answer[l];
     std::vector<int> returned(len);
     for (int beta = 0; beta < len; ++beta)
         returned[beta] = C_0[channel[beta]];
@@ -113,7 +113,7 @@ void PolarCode::recursivelyCalcP(int lambda, int phi) {
     if (phi % 2 == 0) {
         recursivelyCalcP(lambda - 1, psi);
     }
-    double s = 0.0f;
+    double s = 0.0;
     for (int l = 0; l < LL; ++l) {
         if (pathIndexInactive(l)) {
             continue;
@@ -152,6 +152,11 @@ void PolarCode::recursivelyCalcP(int lambda, int phi) {
     }
 }
 
+void PolarCode::setArrayPointer_C(int* C_m, int phi, int l, int code) {
+    C_m[phi % 2] = code;
+    answer[l][phi] = code;
+}
+
 void PolarCode::initializeDataStructures() {
     inactivePathIndices = std::stack<int>();
     activePath.resize(LL, false);
@@ -160,8 +165,10 @@ void PolarCode::initializeDataStructures() {
     pathIndexToArrayIndex.resize(m + 1, std::vector<int>(LL));
     inactiveArrayIndices.resize(m + 1, std::stack<int>());
     arrayReferenceCount.resize(m + 1, std::vector<int>(LL, 0));
+    answer.resize(LL);
     for (int lambda = 0; lambda <= m; lambda++) {
         for (int s = 0; s < LL; s++) {
+            answer[s] = new int[n]();
             arrayPointer_P[lambda][s] = new double[2 * (1 << (m - lambda))]();
             arrayPointer_C[lambda][s] = new int[2 * (1 << (m - lambda))]();
             inactiveArrayIndices[lambda].push(s);
@@ -218,7 +225,7 @@ void PolarCode::continuePaths_FrozenBit(int phi) {
         if (pathIndexInactive(l))
             continue;
         int *C_m = getArrayPointer_C(m, l);
-        C_m[phi % 2] = 0;
+        setArrayPointer_C(C_m, phi, l, 0);
     }
 }
 
@@ -281,15 +288,15 @@ void PolarCode::continuePaths_UnfrozenBit(int phi) {
             continue;
         int *C_m = getArrayPointer_C(m, l);
         if (contForks[l][0] && contForks[l][1]) {
-            C_m[phi % 2] = 0;
+            setArrayPointer_C(C_m, phi, l, 0);
             int l_ = clonePath(l);
             C_m = getArrayPointer_C(m, l_);
-            C_m[phi % 2] = 1;
+            setArrayPointer_C(C_m, phi, l_, 1);
         } else {
             if (contForks[l][0]) {
-                C_m[phi % 2] = 0;
+                setArrayPointer_C(C_m, phi, l, 0);
             } else {
-                C_m[phi % 2] = 1;
+                setArrayPointer_C(C_m, phi, l, 1);
             }
         }
     }

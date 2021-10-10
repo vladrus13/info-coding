@@ -4,3 +4,4 @@ project(info_coding)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(info_coding main.cpp polar/PolarCoder.cpp polar/PolarCoder.h)
+add_executable(testing testing.cpp polar/PolarCoder.cpp polar/PolarCoder.h)

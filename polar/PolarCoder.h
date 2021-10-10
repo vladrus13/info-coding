@@ -79,6 +79,7 @@ public:
 
     int LL;
 
+    std::vector<int*> answer;
     std::stack<int> inactivePathIndices;
     std::vector<bool> activePath;
     std::vector<std::vector<double *>> arrayPointer_P;
@@ -111,6 +112,10 @@ public:
 
     template<class T>
     int getArrayPointer(int lambda, int l, const std::vector<std::vector<T*>> &pointer);
+
+    void setArrayPointer_C(int *C_m, int phi, int l);
+
+    void setArrayPointer_C(int *C_m, int phi, int l, int code);
 };
 
 #endif //INFO_CODING_POLARCODER_H

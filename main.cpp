@@ -12,12 +12,12 @@ int main() {
     std::vector<double> probabilities0{};
     probabilities1.reserve(a.size());
     probabilities0.reserve(a.size());
-    for (uint8_t i: a) {
-        probabilities1.push_back(i + 0.0);
-        probabilities0.push_back(1.0 - i);
+    for (int i: a) {
+        probabilities1.push_back(i + 0.1);
+        probabilities0.push_back(0.9 - i);
     }
     std::vector<int> decoded = polarCode.decode(probabilities1, probabilities0, 32);
-    for (uint8_t i: decoded) {
+    for (int i: decoded) {
         std::cout << (int) i << ' ';
     }
     return 0;
