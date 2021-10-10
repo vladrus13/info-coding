@@ -7,14 +7,14 @@
 
 #include <vector>
 #include <algorithm>
+#include <stack>
 
 class PolarCode {
 private:
-    int n;
+    int m;
     int len;
-    int block_size;
+    int n;
     int crc;
-    double epsilon;
     std::vector<int> frozen;
     std::vector<int> reverse_order;
     std::vector<int> channel;
@@ -22,25 +22,25 @@ private:
 
 public:
     PolarCode(int step, double epsilon, int crc)
-            : n(step), len(1 >> (step - 1)), epsilon(epsilon), crc(crc) {
-        block_size = (1 << step);
-        frozen.resize(block_size, 0);
-        reverse_order.resize(block_size);
+            : m(step), len(1 << (step - 1)), crc(crc) {
+        n = (1 << step);
+        frozen.resize(n, 1);
+        reverse_order.resize(n);
 
-        for (int i = 0; i < block_size; i++) {
+        for (int i = 0; i < n; i++) {
             int reversed = i;
-            reverse_order[i] = ((reversed & 1) << (n - 1));
-            for (int j = n - 1; j; j--) {
+            reverse_order[i] = ((reversed & 1) << (m - 1));
+            for (int j = m - 1; j; j--) {
                 reversed >>= 1;
-                reverse_order[i] -= (reversed & 1) << (j - 1);
+                reverse_order[i] += (reversed & 1) << (j - 1);
             }
         }
 
-        std::vector<double> channel_mistake(block_size, epsilon);
-        for (int nest = 0; nest < n; nest++) {
+        std::vector<double> channel_mistake(n, epsilon);
+        for (int nest = 0; nest < m; nest++) {
             int inc = 1 << nest;
             for (int j = 0; j < inc; j++) {
-                for (int i = 0; i < block_size; i += 2 * inc) {
+                for (int i = 0; i < n; i += 2 * inc) {
                     double first_channel = channel_mistake[i + j];
                     double second_channel = channel_mistake[i + j + inc];
                     channel_mistake[i + j] = first_channel + second_channel - first_channel * second_channel;
@@ -49,8 +49,8 @@ public:
             }
         }
 
-        channel.resize(block_size);
-        for (int i = 0; i < block_size; i++) {
+        channel.resize(n);
+        for (int i = 0; i < n; i++) {
             channel[i] = i;
         }
         std::sort(std::begin(channel),
@@ -72,7 +72,45 @@ public:
     }
 
     std::vector<int> encode(const std::vector<int> &info);
-    std::vector<int> decode(const std::vector<double>& p0, const std::vector<double>& p1, int L);
+
+    std::vector<int> decode(const std::vector<double> &p0, const std::vector<double> &p1, int L);
+
+    void initializeDataStructures();
+
+    int LL;
+
+    std::stack<int> inactivePathIndices;
+    std::vector<bool> activePath;
+    std::vector<std::vector<double *>> arrayPointer_P;
+    std::vector<std::vector<int *>> arrayPointer_C;
+    std::vector<std::vector<int>> pathIndexToArrayIndex;
+    std::vector<std::stack<int>> inactiveArrayIndices;
+    std::vector<std::vector<int>> arrayReferenceCount;
+
+    int assignInitialPath();
+
+    int findMostProbablePath();
+
+    void continuePaths_UnfrozenBit(int phi);
+
+    void continuePaths_FrozenBit(int phi);
+
+    void recursivelyUpdateC(int lambda, int phi);
+
+    void killPath(int l);
+
+    int clonePath(int l);
+
+    void recursivelyCalcP(int lambda, int phi);
+
+    int *getArrayPointer_C(int lambda, int l);
+
+    double *getArrayPointer_P(int lambda, int l);
+
+    bool pathIndexInactive(int l);
+
+    template<class T>
+    int getArrayPointer(int lambda, int l, const std::vector<std::vector<T*>> &pointer);
 };
 
 #endif //INFO_CODING_POLARCODER_H
