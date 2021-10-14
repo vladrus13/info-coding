@@ -15,14 +15,12 @@ private:
     int len;
     int n;
     int crc;
-    std::vector<int> frozen;
     std::vector<int> reverse_order;
-    std::vector<int> channel;
     std::vector<std::vector<int>> matrix;
 
 public:
-    PolarCode(int step, double epsilon, int crc)
-            : m(step), len(1 << (step - 1)), crc(crc) {
+    PolarCode(int step, int crc, std::vector<int> channel)
+            : m(step), len(1 << (step - 1)), crc(crc), channel(channel) {
         n = (1 << step);
         frozen.resize(n, 1);
         reverse_order.resize(n);
@@ -36,28 +34,6 @@ public:
             }
         }
 
-        std::vector<double> channel_mistake(n, epsilon);
-        for (int nest = 0; nest < m; nest++) {
-            int inc = 1 << nest;
-            for (int j = 0; j < inc; j++) {
-                for (int i = 0; i < n; i += 2 * inc) {
-                    double first_channel = channel_mistake[i + j];
-                    double second_channel = channel_mistake[i + j + inc];
-                    channel_mistake[i + j] = first_channel + second_channel - first_channel * second_channel;
-                    channel_mistake[i + j + inc] = first_channel * second_channel;
-                }
-            }
-        }
-
-        channel.resize(n);
-        for (int i = 0; i < n; i++) {
-            channel[i] = i;
-        }
-        std::sort(std::begin(channel),
-                  std::end(channel),
-                  [&](int i1, int i2) {
-                      return channel_mistake[reverse_order.at(i1)] < channel_mistake[reverse_order.at(i2)];
-                  });
         int record_frozen = len + crc;
         for (int i = 0; i < record_frozen; i++) {
             frozen[channel[i]] = 0;
@@ -79,7 +55,7 @@ public:
 
     int LL;
 
-    std::vector<int*> answer;
+    std::vector<int *> answer;
     std::stack<int> inactivePathIndices;
     std::vector<bool> activePath;
     std::vector<std::vector<double *>> arrayPointer_P;
@@ -111,11 +87,14 @@ public:
     bool pathIndexInactive(int l);
 
     template<class T>
-    int getArrayPointer(int lambda, int l, const std::vector<std::vector<T*>> &pointer);
+    int getArrayPointer(int lambda, int l, const std::vector<std::vector<T *>> &pointer);
 
     void setArrayPointer_C(int *C_m, int phi, int l);
 
     void setArrayPointer_C(int *C_m, int phi, int l, int code);
+
+    std::vector<int> frozen;
+    std::vector<int> channel;
 };
 
 #endif //INFO_CODING_POLARCODER_H

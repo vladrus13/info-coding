@@ -80,7 +80,7 @@ T *copy(T *first, T *last, T *d_first) {
 }
 
 template<class T>
-int PolarCode::getArrayPointer(int lambda, int l, const std::vector<std::vector<T*>> &pointer) {
+int PolarCode::getArrayPointer(int lambda, int l, const std::vector<std::vector<T *>> &pointer) {
     int s = pathIndexToArrayIndex[lambda][l];
     int s_p;
     if (arrayReferenceCount[lambda][s] == 1) {
@@ -152,7 +152,7 @@ void PolarCode::recursivelyCalcP(int lambda, int phi) {
     }
 }
 
-void PolarCode::setArrayPointer_C(int* C_m, int phi, int l, int code) {
+void PolarCode::setArrayPointer_C(int *C_m, int phi, int l, int code) {
     C_m[phi % 2] = code;
     answer[l][phi] = code;
 }

@@ -4,20 +4,21 @@
 
 #include <iostream>
 #include <random>
+#include <fstream>
+#include <utility>
 #include "polar/PolarCoder.h"
 
 const int COUNT_TEST = 500;
 const int L = 1;
 
 std::mt19937 rnd;
-std::uniform_int_distribution<int> dist(0,1);
+std::uniform_int_distribution<int> dist(0, 1);
 
-bool random_test() {
+bool random_test(std::vector<int> channel) {
     int n = 10;
     int info_length = (1 << (n - 1));
     int crc_size = 16;
-    double design_epsilon = 0.1;
-    PolarCode polarCode(n, design_epsilon, crc_size);
+    PolarCode polarCode(n, crc_size, std::move(channel));
     std::vector<int> read;
     read.reserve(info_length);
     for (int i = 0; i < info_length; i++) {
@@ -43,8 +44,14 @@ bool random_test() {
 }
 
 int main() {
+    std::vector<int> channel;
+    std::ifstream in("frozen.txt");
+    int x;
+    while (in >> x) {
+        channel.push_back(x);
+    }
     for (int i = 0; i < COUNT_TEST; i++) {
-        bool random = random_test();
+        bool random = random_test(channel);
         if (random) {
             return 1;
         }

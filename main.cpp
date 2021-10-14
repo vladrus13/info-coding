@@ -1,12 +1,18 @@
 #include <iostream>
+#include <fstream>
 #include "polar/PolarCoder.h"
 
 int main() {
     int n = 11;
     int info_length = (1 << (n - 1));
     int crc_size = 16;
-    double design_epsilon = 0.1;
-    PolarCode polarCode(n, design_epsilon, crc_size);
+    std::vector<int> channel;
+    std::ifstream in("frozen.txt");
+    int x;
+    while (in >> x) {
+        channel.push_back(x);
+    }
+    PolarCode polarCode(n, crc_size, channel);
     std::vector<int> a = polarCode.encode(std::vector<int>(info_length, 0));
     std::vector<double> probabilities1{};
     std::vector<double> probabilities0{};
