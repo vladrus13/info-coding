@@ -246,33 +246,35 @@ void PolarCode::continuePaths_UnfrozenBit(int phi) {
             i++;
         }
     }
-    int threadhold = std::min(LL, 2 * i);
-    std::sort(largest_entities.begin(), largest_entities.end(), std::greater<>());
-    double ban = largest_entities[threadhold - 1];
-    int ban_largest = 0;
-    bool flag = true;
     std::vector<std::vector<bool>> contForks(LL, std::vector<bool>{false, false});
-    for (int l = 0; l < LL && flag; ++l) {
-        for (int code = 0; code < 2 && flag; code++) {
-            if (probForks[l][code] > ban) {
-                contForks[l][code] = true;
-                ban_largest++;
-            }
-            if (ban_largest == threadhold) {
-                flag = false;
-            }
-        }
-    }
-    flag = true;
-    if (ban_largest < threadhold) {
+    if (i != 0) {
+        int threadhold = std::min(LL, 2 * i);
+        std::sort(largest_entities.begin(), largest_entities.end(), std::greater<>());
+        double ban = largest_entities[threadhold - 1];
+        int ban_largest = 0;
+        bool flag = true;
         for (int l = 0; l < LL && flag; ++l) {
             for (int code = 0; code < 2 && flag; code++) {
-                if (probForks[l][code] == ban) {
+                if (probForks[l][code] > ban) {
                     contForks[l][code] = true;
                     ban_largest++;
                 }
                 if (ban_largest == threadhold) {
                     flag = false;
+                }
+            }
+        }
+        flag = true;
+        if (ban_largest < threadhold) {
+            for (int l = 0; l < LL && flag; ++l) {
+                for (int code = 0; code < 2 && flag; code++) {
+                    if (probForks[l][code] == ban) {
+                        contForks[l][code] = true;
+                        ban_largest++;
+                    }
+                    if (ban_largest == threadhold) {
+                        flag = false;
+                    }
                 }
             }
         }

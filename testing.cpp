@@ -30,10 +30,10 @@ bool random_test(std::vector<int> channel) {
     probabilities1.reserve(a.size());
     probabilities0.reserve(a.size());
     for (uint8_t i: a) {
-        probabilities1.push_back(i + 0.1);
-        probabilities0.push_back(0.9 - i);
+        probabilities1.push_back(i);
+        probabilities0.push_back(1 - i);
     }
-    std::vector<int> decoded = polarCode.decode(probabilities1, probabilities0, L);
+    std::vector<int> decoded = polarCode.decode(probabilities0, probabilities1, L);
     int count = 0;
     for (int i = 0; i < decoded.size(); i++) {
         if (decoded[i] != read[i]) {
